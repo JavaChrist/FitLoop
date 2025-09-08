@@ -9,7 +9,7 @@ export default function Profil() {
     chest: 95,
     hips: 98,
     timePreference: "soir",
-    weeklyGoal: 0.7, // kg/semaine
+    weeklyGoal: "0.7", // kg/semaine
     subscriptionStatus: "trial",
     trialStartDate: new Date().toISOString(),
     trialEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 jours
@@ -26,7 +26,20 @@ export default function Profil() {
   }, []);
 
   const handleChange = (field, value) => {
-    setProfile((prev) => ({ ...prev, [field]: parseFloat(value) || value }));
+    // Pour les champs numériques (poids, taille, etc.), parser en nombre
+    const numericFields = [
+      "weight",
+      "height",
+      "goalWeight",
+      "waist",
+      "chest",
+      "hips",
+    ];
+    const finalValue = numericFields.includes(field)
+      ? parseFloat(value) || value
+      : value;
+
+    setProfile((prev) => ({ ...prev, [field]: finalValue }));
     setIsSaved(false);
   };
 

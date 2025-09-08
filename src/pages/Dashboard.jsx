@@ -7,6 +7,7 @@ import WorkoutCard from "../components/WorkoutCard";
 export default function Dashboard() {
   const [userProfile, setUserProfile] = useState({
     weight: 82.5,
+    startWeight: 82.5, // Poids de départ
     goalWeight: 75,
     height: 178,
   });
@@ -86,11 +87,22 @@ export default function Dashboard() {
   const weightData = createWeightData();
 
   // Calculs dynamiques
-  const weightToLose = userProfile.weight - userProfile.goalWeight;
-  const currentBMI = userProfile.weight / Math.pow(userProfile.height / 100, 2);
-  const goalBMI =
-    userProfile.goalWeight / Math.pow(userProfile.height / 100, 2);
-  const progressPercentage = ((1.0 / weightToLose) * 100).toFixed(0); // Basé sur 1kg perdu cette semaine
+  const startWeight = userProfile.startWeight || userProfile.weight; // Poids de départ
+  const currentWeight = userProfile.weight;
+  const goalWeight = userProfile.goalWeight;
+
+  const totalWeightToLose = startWeight - goalWeight;
+  const weightLostSoFar = startWeight - currentWeight;
+  const progressPercentage =
+    totalWeightToLose > 0
+      ? Math.max(
+          0,
+          Math.min(100, (weightLostSoFar / totalWeightToLose) * 100)
+        ).toFixed(0)
+      : 0;
+
+  const currentBMI = currentWeight / Math.pow(userProfile.height / 100, 2);
+  const goalBMI = goalWeight / Math.pow(userProfile.height / 100, 2);
 
   return (
     <div className="grid gap-8">
@@ -118,16 +130,37 @@ export default function Dashboard() {
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
           <h2 className="text-lg font-medium mb-6">Objectifs</h2>
           <div className="grid gap-6">
-            {/* Poids actuel vs objectif */}
+            {/* Progression du poids */}
             <div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-sm font-medium">Évolution du poids</h3>
+                <Link
+                  to="/programme"
+                  className="flex items-center gap-1 text-xs bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded-lg"
+                >
+                  Voir programme
+                </Link>
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-zinc-400">Poids de départ</span>
+                <span className="font-medium text-zinc-400">
+                  {startWeight} kg
+                </span>
+              </div>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-zinc-400">Poids actuel</span>
-                <span className="font-semibold">{userProfile.weight} kg</span>
+                <span className="font-semibold">{currentWeight} kg</span>
               </div>
               <div className="flex justify-between items-center mb-3">
                 <span className="text-sm text-zinc-400">Objectif</span>
                 <span className="font-semibold text-green-400">
-                  {userProfile.goalWeight} kg
+                  {goalWeight} kg
+                </span>
+              </div>
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-sm text-zinc-400">Perdu</span>
+                <span className="font-semibold text-blue-400">
+                  {weightLostSoFar.toFixed(1)} kg
                 </span>
               </div>
               <div className="w-full bg-zinc-800 rounded-full h-2">
@@ -137,7 +170,7 @@ export default function Dashboard() {
                 />
               </div>
               <div className="text-center mt-2 text-sm text-zinc-400">
-                Reste {weightToLose.toFixed(1)} kg à perdre
+                {progressPercentage}% de l'objectif atteint
               </div>
             </div>
 

@@ -78,6 +78,13 @@ function App() {
               <span>Programme</span>
             </Link>
             <Link
+              to="/notifications"
+              className="flex items-center gap-2 opacity-90 hover:opacity-100"
+            >
+              <Bell size={16} />
+              <span>Notifications</span>
+            </Link>
+            <Link
               to="/subscription"
               className="flex items-center gap-2 opacity-90 hover:opacity-100"
             >
@@ -96,6 +103,13 @@ function App() {
                 >
                   <User size={16} />
                   <span>Profil</span>
+                </Link>
+                <Link
+                  to="/settings"
+                  className="flex items-center gap-2 opacity-90 hover:opacity-100"
+                >
+                  <SettingsIcon size={16} />
+                  <span>Paramètres</span>
                 </Link>
                 <button
                   onClick={handleLogout}
@@ -178,21 +192,18 @@ function App() {
                 <span>Premium</span>
               </Link>
 
-              {user && (
-                <Link
-                  to="/profil"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-zinc-800"
-                >
-                  <User size={18} />
-                  <span>Profil</span>
-                </Link>
-              )}
-
               <hr className="border-white/10 my-4" />
 
               {user ? (
                 <>
+                  <Link
+                    to="/profil"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-zinc-800"
+                  >
+                    <User size={18} />
+                    <span>Profil</span>
+                  </Link>
                   <Link
                     to="/settings"
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -228,7 +239,7 @@ function App() {
       </header>
 
       <TrialBanner />
-      <main className="mx-auto max-w-6xl safe-x px-4 sm:px-6 py-6 sm:py-8">
+      <main className="mx-auto max-w-6xl py-6 sm:py-8 main-padding">
         <Outlet />
       </main>
 

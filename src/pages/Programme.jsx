@@ -24,8 +24,9 @@ export default function Programme() {
   const [showWeightInput, setShowWeightInput] = useState(false);
   const [editingWeek, setEditingWeek] = useState(null);
 
-  // Charger les données du profil depuis localStorage
+  // Charger les données du profil et pesées depuis localStorage
   useEffect(() => {
+    // 1. Charger le profil
     const savedProfile = localStorage.getItem("fitloop-profile");
     if (savedProfile) {
       const profile = JSON.parse(savedProfile);
@@ -39,6 +40,7 @@ export default function Programme() {
 
       setUserProfile({
         currentWeight: profile.weight || 82.5,
+        startWeight: profile.startWeight || profile.weight || 82.5, // Poids de départ
         goalWeight: profile.goalWeight || 75,
         height: profile.height || 178,
         timeframe: finalWeeks,
@@ -46,35 +48,66 @@ export default function Programme() {
       });
     }
 
-    // Charger les poids hebdomadaires
+    // 2. Charger les pesées
     const savedWeights = localStorage.getItem("fitloop-weekly-weights");
     if (savedWeights) {
-      setWeeklyWeights(JSON.parse(savedWeights));
+      const weights = JSON.parse(savedWeights);
+      setWeeklyWeights(weights);
+
+      // 3. Aller à la prochaine semaine à remplir APRÈS avoir chargé les pesées
+      if (Object.keys(weights).length > 0) {
+        // Filtrer les semaines valides (1-12 pour un programme normal)
+        const validWeeks = Object.keys(weights)
+          .map(Number)
+          .filter((week) => week >= 1 && week <= 12)
+          .sort((a, b) => a - b);
+
+        if (validWeeks.length > 0) {
+          const maxValidWeek = Math.max(...validWeeks);
+          const nextWeek = Math.min(maxValidWeek + 1, 12);
+          setCurrentWeek(nextWeek);
+        } else {
+          setCurrentWeek(1);
+        }
+      }
     }
   }, []);
 
   // Calcul des objectifs avec poids réel
+  const startWeight =
+    userProfile.startWeight || userProfile.currentWeight || 80;
   const currentRealWeight =
-    weeklyWeights[currentWeek] || userProfile.currentWeight;
-  const totalWeightToLose = userProfile.currentWeight - userProfile.goalWeight;
-  const weightLostSoFar = userProfile.currentWeight - currentRealWeight;
-  const remainingWeight = currentRealWeight - userProfile.goalWeight;
+    weeklyWeights[currentWeek] || userProfile.currentWeight || startWeight;
+  const goalWeight = userProfile.goalWeight || 75;
+  const totalWeightToLose = startWeight - goalWeight;
+  const weightLostSoFar = startWeight - currentRealWeight;
+  const remainingWeight = currentRealWeight - goalWeight;
 
-  const weeklyTarget = userProfile.weeklyGoal.toFixed(1);
+  const weeklyTarget = parseFloat(userProfile.weeklyGoal || 0.7).toFixed(1);
   const realProgress =
-    totalWeightToLose > 0 ? (weightLostSoFar / totalWeightToLose) * 100 : 0;
+    totalWeightToLose > 0
+      ? Math.max(0, (weightLostSoFar / totalWeightToLose) * 100)
+      : 0;
 
   // Recalcul du temps restant selon le poids actuel
+  const weeklyGoalNum = parseFloat(userProfile.weeklyGoal || 0.7);
   const weeksRemaining =
-    remainingWeight > 0
-      ? Math.ceil(remainingWeight / userProfile.weeklyGoal)
+    remainingWeight > 0 && weeklyGoalNum > 0
+      ? Math.ceil(remainingWeight / weeklyGoalNum)
       : 0;
 
   // Fonction pour enregistrer le poids d'une semaine
   const saveWeeklyWeight = (week, weight) => {
-    const newWeights = { ...weeklyWeights, [week]: parseFloat(weight) };
+    const parsedWeight = parseFloat(weight);
+    const newWeights = { ...weeklyWeights, [week]: parsedWeight };
     setWeeklyWeights(newWeights);
     localStorage.setItem("fitloop-weekly-weights", JSON.stringify(newWeights));
+
+    // Mettre à jour le poids actuel dans le profil avec le dernier poids enregistré
+    const updatedProfile = { ...userProfile, weight: parsedWeight };
+    setUserProfile(updatedProfile);
+    localStorage.setItem("fitloop-profile", JSON.stringify(updatedProfile));
+
     setShowWeightInput(false);
     setEditingWeek(null);
   };
@@ -85,6 +118,30 @@ export default function Programme() {
     delete newWeights[week];
     setWeeklyWeights(newWeights);
     localStorage.setItem("fitloop-weekly-weights", JSON.stringify(newWeights));
+  };
+
+  // Fonction pour nettoyer les données incorrectes
+  const cleanInvalidWeights = () => {
+    const validWeights = {};
+    Object.entries(weeklyWeights).forEach(([week, weight]) => {
+      const weekNum = parseInt(week);
+      if (weekNum >= 1 && weekNum <= 12) {
+        validWeights[week] = weight;
+      }
+    });
+    setWeeklyWeights(validWeights);
+    localStorage.setItem(
+      "fitloop-weekly-weights",
+      JSON.stringify(validWeights)
+    );
+
+    // Aller à la bonne semaine après nettoyage
+    if (Object.keys(validWeights).length > 0) {
+      const maxValidWeek = Math.max(...Object.keys(validWeights).map(Number));
+      setCurrentWeek(Math.min(maxValidWeek + 1, 12));
+    } else {
+      setCurrentWeek(1);
+    }
   };
 
   const weeklyProgram = {
@@ -267,13 +324,13 @@ export default function Programme() {
               <div className="flex justify-between items-center mb-2">
                 <span className="text-zinc-400">Poids actuel</span>
                 <span className="font-semibold text-blue-400">
-                  {currentRealWeight.toFixed(1)} kg
+                  {(currentRealWeight || 0).toFixed(1)} kg
                 </span>
               </div>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-zinc-400">Reste à perdre</span>
                 <span className="font-semibold text-orange-400">
-                  -{remainingWeight.toFixed(1)} kg
+                  -{Math.max(0, remainingWeight || 0).toFixed(1)} kg
                 </span>
               </div>
               <div className="flex justify-between items-center mb-3">
@@ -291,7 +348,7 @@ export default function Programme() {
                 />
               </div>
               <div className="text-center mt-2 text-sm text-zinc-400">
-                {realProgress.toFixed(0)}% de l'objectif accompli
+                {(realProgress || 0).toFixed(0)}% de l'objectif accompli
               </div>
             </div>
           </div>
@@ -326,7 +383,7 @@ export default function Programme() {
               <TrendingDown className="text-orange-500" size={20} />
               <div>
                 <div className="font-medium">
-                  {realProgress.toFixed(0)}% accompli
+                  {(realProgress || 0).toFixed(0)}% accompli
                 </div>
                 <div className="text-xs text-zinc-400">De l'objectif</div>
               </div>
@@ -525,7 +582,7 @@ export default function Programme() {
           </div>
           <div className="flex justify-between text-xs text-zinc-400 mt-2">
             <span>Début</span>
-            <span>{realProgress.toFixed(0)}% accompli</span>
+            <span>{(realProgress || 0).toFixed(0)}% accompli</span>
             <span>Objectif</span>
           </div>
         </div>
@@ -563,7 +620,7 @@ export default function Programme() {
                           }`}
                         >
                           {weightChange > 0 ? "+" : ""}
-                          {weightChange.toFixed(1)} kg
+                          {(weightChange || 0).toFixed(1)} kg
                         </span>
                       )}
                     </div>
