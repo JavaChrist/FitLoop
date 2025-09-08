@@ -18,33 +18,27 @@ export class MollieService {
   // Créer un paiement avec ID utilisateur spécifique
   static async createPaymentWithUser(amount, description, redirectUrl, userId) {
     try {
-      const response = await fetch(`${this.baseUrl}/payments`, {
+      // 🔥 NOUVEAU : Appeler notre API route au lieu de Mollie directement
+      const response = await fetch("/api/mollie/create-payment", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${this.apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: {
-            currency: "EUR",
-            value: amount.toFixed(2),
-          },
-          description,
-          redirectUrl,
-          webhookUrl: `${window.location.origin}/api/mollie/webhook`,
-          metadata: {
-            userId: userId,
-            plan: "fitloop-monthly",
-            source: "fitloop-app",
-          },
+          amount: amount,
+          description: description,
+          redirectUrl: redirectUrl,
+          userId: userId,
         }),
       });
 
       const payment = await response.json();
 
-      // Vérifier si la réponse contient une erreur
-      if (payment.error) {
-        throw new Error(payment.error.message || "Erreur Mollie inconnue");
+      // Vérifier si notre API a retourné une erreur
+      if (!response.ok || payment.error) {
+        throw new Error(
+          payment.error || `Erreur ${response.status}: ${response.statusText}`
+        );
       }
 
       return payment;
