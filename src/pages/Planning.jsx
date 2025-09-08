@@ -220,12 +220,15 @@ export default function Planning() {
       </div>
 
       {/* Navigation semaines */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-medium">Semaine {currentWeek}</h2>
-          <span className={`text-sm font-medium ${currentPhase.color}`}>
-            Phase {currentPhase.name}
-          </span>
+      <div className="space-y-4">
+        {/* Ligne 1: Titre, phase et navigation */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <h2 className="text-lg font-medium">Semaine {currentWeek}</h2>
+            <span className={`text-sm font-medium ${currentPhase.color}`}>
+              Phase {currentPhase.name}
+            </span>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentWeek(Math.max(1, currentWeek - 1))}
@@ -242,7 +245,9 @@ export default function Planning() {
             </button>
           </div>
         </div>
-        <div className="flex gap-2">
+
+        {/* Ligne 2: Boutons d'action */}
+        <div className="flex flex-wrap gap-2">
           {!hasCustomPlan && (
             <button
               onClick={applyRecommendedProgram}

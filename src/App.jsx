@@ -178,18 +178,21 @@ function App() {
                 <span>Premium</span>
               </Link>
 
+              {user && (
+                <Link
+                  to="/profil"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-zinc-800"
+                >
+                  <User size={18} />
+                  <span>Profil</span>
+                </Link>
+              )}
+
               <hr className="border-white/10 my-4" />
 
               {user ? (
                 <>
-                  <Link
-                    to="/profil"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-zinc-800"
-                  >
-                    <User size={18} />
-                    <span>Profil</span>
-                  </Link>
                   <Link
                     to="/settings"
                     onClick={() => setIsMobileMenuOpen(false)}
