@@ -246,18 +246,20 @@ export default function Planning() {
           {!hasCustomPlan && (
             <button
               onClick={applyRecommendedProgram}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg font-medium text-sm sm:text-base sm:px-4"
             >
               <CheckCircle size={16} />
-              Appliquer programme
+              <span className="hidden sm:inline">Appliquer programme</span>
+              <span className="sm:hidden">Appliquer</span>
             </button>
           )}
           <button
             onClick={() => setShowAddWorkout(true)}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium"
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg font-medium text-sm sm:text-base sm:px-4"
           >
             <Plus size={16} />
-            Ajouter séance
+            <span className="hidden sm:inline">Ajouter séance</span>
+            <span className="sm:hidden">Ajouter</span>
           </button>
         </div>
       </div>
