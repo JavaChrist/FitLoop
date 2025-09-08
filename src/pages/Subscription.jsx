@@ -62,10 +62,17 @@ export default function Subscription() {
           user?.uid || "demo-user"
         );
 
+        console.log("🔍 Réponse Mollie complète:", payment);
+        console.log("🔍 Lien checkout:", payment.links?.checkout?.href);
+
         if (payment.links?.checkout?.href) {
           window.location.href = payment.links.checkout.href;
         } else {
-          throw new Error("Lien de paiement non reçu de Mollie");
+          throw new Error(
+            `Lien de paiement non reçu de Mollie. Réponse: ${JSON.stringify(
+              payment
+            )}`
+          );
         }
       } else if (!import.meta.env.DEV) {
         // Production : vrai paiement Mollie

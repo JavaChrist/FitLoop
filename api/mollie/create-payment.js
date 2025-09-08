@@ -59,7 +59,12 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log("✅ Paiement Mollie créé:", payment.id);
+    console.log("✅ Paiement Mollie créé:", {
+      id: payment.id,
+      status: payment.status,
+      checkoutUrl: payment.links?.checkout?.href,
+      fullResponse: payment,
+    });
 
     // Retourner le paiement au frontend
     res.status(200).json(payment);
