@@ -1,0 +1,103 @@
+{
+  "name": "FitLoop - Coaching Sportif Personnel",
+  "short_name": "FitLoop",
+  "description": "Ton coach sportif personnel pour atteindre tes objectifs fitness",
+  "theme_color": "#3b82f6",
+  "background_color": "#09090b",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "start_url": "/",
+  "id": "fitloop-pwa",
+  "categories": ["health", "fitness", "lifestyle"],
+  "lang": "fr",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/logo16.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "favicon"
+    },
+    {
+      "src": "/logo32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "favicon"
+    },
+    {
+      "src": "/logo48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo64.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouveau Workout",
+      "short_name": "Workout",
+      "description": "Commencer un nouvel entraînement",
+      "url": "/planning",
+      "icons": [
+        {
+          "src": "/logo96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Mes Progrès",
+      "short_name": "Progrès",
+      "description": "Voir mes statistiques",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/logo96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}

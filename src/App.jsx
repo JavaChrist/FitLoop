@@ -12,6 +12,7 @@ import {
   Settings as SettingsIcon,
 } from "lucide-react";
 import TrialBanner from "./components/TrialBanner";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import { useAuth } from "./hooks/useAuth";
 import { signOutUser } from "./firebase/auth";
 
@@ -31,7 +32,7 @@ function App() {
   return (
     <div className="min-h-screen bg-zinc-950">
       <header className="border-b border-white/5 bg-zinc-900/50 backdrop-blur">
-        <nav className="mx-auto max-w-6xl px-6 h-16 flex items-center gap-8 text-sm font-medium">
+        <nav className="mx-auto max-w-6xl header-safe h-16 flex items-center gap-8 text-sm font-medium">
           <Link
             to="/"
             className="flex items-center gap-2 opacity-90 hover:opacity-100"
@@ -110,9 +111,12 @@ function App() {
         </nav>
       </header>
       <TrialBanner />
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl safe-x px-6 py-8">
         <Outlet />
       </main>
+
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
     </div>
   );
 }
