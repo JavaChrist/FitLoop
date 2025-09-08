@@ -268,12 +268,30 @@ export default function Programme() {
   };
 
   const getCurrentPhase = () => {
-    const adaptationPhase = Math.ceil(userProfile.timeframe * 0.2); // 20% pour adaptation
-    const intensificationPhase = Math.ceil(userProfile.timeframe * 0.6); // 60% pour intensification
+    // Phases basées sur la progression réelle, pas sur le temps total théorique
+    const progressPercent =
+      totalWeightToLose > 0 ? (weightLostSoFar / totalWeightToLose) * 100 : 0;
 
-    if (currentWeek <= adaptationPhase) return weeklyProgram[1];
-    if (currentWeek <= intensificationPhase) return weeklyProgram[3];
-    return weeklyProgram[7];
+    // Phase selon le pourcentage de progression
+    if (progressPercent < 25 || currentWeek <= 4) {
+      return {
+        ...weeklyProgram[1],
+        title: "Phase d'Adaptation",
+        focus: "Mise en route et création d'habitudes",
+      };
+    }
+    if (progressPercent < 75 || currentWeek <= 8) {
+      return {
+        ...weeklyProgram[3],
+        title: "Phase d'Intensification",
+        focus: "Accélération de la perte de poids",
+      };
+    }
+    return {
+      ...weeklyProgram[7],
+      title: "Phase d'Optimisation",
+      focus: "Finalisation et stabilisation",
+    };
   };
 
   // Évaluation de la faisabilité

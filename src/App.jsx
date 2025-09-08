@@ -1,5 +1,5 @@
-import { Outlet, Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -20,9 +20,31 @@ import { useAuth } from "./hooks/useAuth";
 import { signOutUser } from "./firebase/auth";
 
 function App() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Redirection automatique vers login si pas d'utilisateur
+  useEffect(() => {
+    if (!loading && !user && location.pathname !== "/login") {
+      navigate("/login");
+    }
+  }, [user, loading, navigate, location.pathname]);
+
+  // Déconnexion automatique au démarrage (optionnel pour dev)
+  useEffect(() => {
+    const autoLogout = async () => {
+      try {
+        await signOutUser();
+      } catch (error) {
+        // Ignore l'erreur si déjà déconnecté
+      }
+    };
+
+    // Décommente cette ligne pour forcer la déconnexion au démarrage
+    // autoLogout();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -32,6 +54,21 @@ function App() {
       console.error("Erreur lors de la déconnexion:", error);
     }
   };
+
+  // Afficher seulement la page de login si pas d'utilisateur
+  if (!user && location.pathname !== "/login") {
+    return null; // Ou un loader pendant la redirection
+  }
+
+  // Si on est sur la page de login, afficher seulement le contenu login
+  if (location.pathname === "/login") {
+    return (
+      <div className="min-h-screen bg-zinc-950">
+        <Outlet />
+        <PWAInstallPrompt />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950">

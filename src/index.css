@@ -60,9 +60,18 @@ body {
 
   /* Header spécifique iPhone avec safe-area */
   .header-safe {
-    padding-top: max(1rem, env(safe-area-inset-top));
-    padding-left: max(1.5rem, env(safe-area-inset-left));
-    padding-right: max(1.5rem, env(safe-area-inset-right));
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  /* Version desktop avec plus d'espace */
+  @media (min-width: 768px) {
+    .header-safe {
+      padding-top: max(1rem, env(safe-area-inset-top));
+      padding-left: max(1.5rem, env(safe-area-inset-left));
+      padding-right: max(1.5rem, env(safe-area-inset-right));
+    }
   }
 
   /* Navigation bottom avec safe-area */
