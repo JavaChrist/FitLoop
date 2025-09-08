@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { userDoc } from "../firebase/collections";
+import { setDoc } from "firebase/firestore";
 
 export default function Profil() {
+  const { user } = useAuth();
   const [profile, setProfile] = useState({
     weight: 82.5,
     height: 178,
@@ -43,10 +47,28 @@ export default function Profil() {
     setIsSaved(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Sauvegarder en localStorage (pour compatibilité)
     localStorage.setItem("fitloop-profile", JSON.stringify(profile));
     setIsSaved(true);
-    // Optionnel: afficher une notification de succès
+
+    // 🔥 NOUVEAU : Sauvegarder dans Firebase si utilisateur connecté
+    if (user?.uid) {
+      try {
+        await setDoc(
+          userDoc(user.uid),
+          {
+            profile: profile,
+            lastUpdated: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+
+        console.log("✅ Profil sauvegardé dans Firebase");
+      } catch (error) {
+        console.error("❌ Erreur sauvegarde profil Firebase:", error);
+      }
+    }
   };
 
   const handleCancel = () => {

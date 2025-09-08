@@ -7,8 +7,12 @@ import {
   Edit3,
   Trash2,
 } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import { userDoc } from "../firebase/collections";
+import { setDoc } from "firebase/firestore";
 
 export default function Planning() {
+  const { user } = useAuth();
   const [currentWeek, setCurrentWeek] = useState(1);
   const [weeklyPlan, setWeeklyPlan] = useState({});
   const [showAddWorkout, setShowAddWorkout] = useState(false);
@@ -33,9 +37,27 @@ export default function Planning() {
   }, []);
 
   // Sauvegarder le planning
-  const savePlan = (newPlan) => {
+  const savePlan = async (newPlan) => {
     setWeeklyPlan(newPlan);
     localStorage.setItem("fitloop-weekly-plan", JSON.stringify(newPlan));
+
+    // 🔥 NOUVEAU : Sauvegarder dans Firebase si utilisateur connecté
+    if (user?.uid) {
+      try {
+        await setDoc(
+          userDoc(user.uid),
+          {
+            weeklyPlan: newPlan,
+            lastUpdated: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+
+        console.log("✅ Planning sauvegardé dans Firebase");
+      } catch (error) {
+        console.error("❌ Erreur sauvegarde planning Firebase:", error);
+      }
+    }
   };
 
   // Ajouter une séance

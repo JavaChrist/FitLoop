@@ -9,8 +9,22 @@ import {
   Edit3,
   Trash2,
 } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import { userDoc } from "../firebase/collections";
+import { setDoc, getDoc } from "firebase/firestore";
 
 export default function Programme() {
+  const { user } = useAuth();
+
+  // Debug auth au chargement
+  useEffect(() => {
+    console.log("🔍 Auth debug Programme:", {
+      user: user,
+      hasUser: !!user,
+      userId: user?.uid,
+      email: user?.email,
+    });
+  }, [user]);
   const [userProfile, setUserProfile] = useState({
     currentWeight: 82.5,
     goalWeight: 75,
@@ -97,27 +111,75 @@ export default function Programme() {
       : 0;
 
   // Fonction pour enregistrer le poids d'une semaine
-  const saveWeeklyWeight = (week, weight) => {
+  const saveWeeklyWeight = async (week, weight) => {
     const parsedWeight = parseFloat(weight);
     const newWeights = { ...weeklyWeights, [week]: parsedWeight };
     setWeeklyWeights(newWeights);
+
+    // Sauvegarder en localStorage (pour compatibilité)
     localStorage.setItem("fitloop-weekly-weights", JSON.stringify(newWeights));
 
-    // Mettre à jour le poids actuel dans le profil avec le dernier poids enregistré
+    // Mettre à jour le poids actuel dans le profil
     const updatedProfile = { ...userProfile, weight: parsedWeight };
     setUserProfile(updatedProfile);
     localStorage.setItem("fitloop-profile", JSON.stringify(updatedProfile));
+
+    // 🔥 NOUVEAU : Sauvegarder dans Firebase si utilisateur connecté
+    console.log("🔍 Debug Firebase:", {
+      hasUser: !!user,
+      userId: user?.uid,
+      userEmail: user?.email,
+    });
+
+    if (user?.uid) {
+      try {
+        console.log("🚀 Tentative sauvegarde Firebase...");
+        await setDoc(
+          userDoc(user.uid),
+          {
+            profile: updatedProfile,
+            weeklyWeights: newWeights,
+            lastUpdated: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+
+        console.log("✅ Pesée sauvegardée dans Firebase");
+      } catch (error) {
+        console.error("❌ Erreur sauvegarde Firebase:", error);
+      }
+    } else {
+      console.log("⚠️ Pas d'utilisateur connecté, pas de sauvegarde Firebase");
+    }
 
     setShowWeightInput(false);
     setEditingWeek(null);
   };
 
   // Fonction pour supprimer une pesée
-  const deleteWeeklyWeight = (week) => {
+  const deleteWeeklyWeight = async (week) => {
     const newWeights = { ...weeklyWeights };
     delete newWeights[week];
     setWeeklyWeights(newWeights);
     localStorage.setItem("fitloop-weekly-weights", JSON.stringify(newWeights));
+
+    // 🔥 NOUVEAU : Sauvegarder dans Firebase si utilisateur connecté
+    if (user?.uid) {
+      try {
+        await setDoc(
+          userDoc(user.uid),
+          {
+            weeklyWeights: newWeights,
+            lastUpdated: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+
+        console.log("✅ Pesée supprimée dans Firebase");
+      } catch (error) {
+        console.error("❌ Erreur suppression Firebase:", error);
+      }
+    }
   };
 
   // Fonction pour nettoyer les données incorrectes
